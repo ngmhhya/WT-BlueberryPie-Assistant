@@ -77,13 +77,14 @@ updateLog = [
 
 layout = [[sg.Text(menu)],
           [sg.Button("轰炸机"),sg.VSeperator(), sg.Button("攻击机"), sg.VSeperator(), sg.Button("停止并退出")],
-          [sg.Button("送死模式")],
+          [sg.Button("送死模式"),sg.VSeperator(),sg.Button("轰炸机半自动")],
           [sg.Column(layout=updateLog, size=(270, 150))]]
 
 turntime = 0
 gotime = 0
 planeType = -1
 goDie = False
+semiauto = False
 windowIsAnchored = True
 redMask = (np.array([0,130,130]),np.array([30,255,255]),np.array([150,130,130]),np.array([180,255,255]))
 
@@ -226,7 +227,7 @@ def maneuverPattern(window, baseFound, name):
     # img = img[int(img.width/4):int(3*img.width/4),:]
     if baseFound:
         onebasemask = np.zeros(img.shape[:2], dtype=np.uint8)
-        onebasemask[120:700, 550:720] = 255
+        onebasemask[120:700, 570:700] = 255
         img = cv2.bitwise_and(img, img, mask=onebasemask)
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     global redMask
@@ -277,9 +278,9 @@ def attackPattern():
         center = (int((ul[0] + lr[0]) / 2), int((ul[1] + lr[1]) / 2))
         deviation = center[0] - pyautogui.position().x
         moveMouse(int(deviation/4), 0)
-        if center[1] > 335 and center[1] < 390:
+        if center[1] > 338 and center[1] < 390:
             for i in range(20):
-                pressWithDelay('space', 0.03, 0.03)
+                pressWithDelay('space', 0.02, 0.02)
 
 
 def saveResults(window, times):
@@ -306,37 +307,39 @@ def WTScript(window):
     windowName = window.title
     global planeType
     global goDie
+    global semiauto
     # print(windowName)
     if not (windowName.__contains__("试") or windowName.__contains__("战") or windowName.__contains__("载")):
         # We are at the hanger. Have to enter a game first
-        if hasImage("air", 0.91, "未检测到空战！可能被阻挡或未调成海战"):
-            if hasImage("enterbattle", 0.95, "未检测到加入游戏！"):
-                click(getButtonLocation("enterbattle"))
-                screenshot(window)
-                time.sleep(3)
-                if hasImage("downloadprompt", 0.98, None):
-                    # If the texture download happens to be there, close it
-                    click(getButtonLocation("downloadprompt"))
+        if not semiauto:
+            if hasImage("air", 0.91, "未检测到空战！可能被阻挡或未调成海战"):
+                if hasImage("enterbattle", 0.95, "未检测到加入游戏！"):
+                    click(getButtonLocation("enterbattle"))
                     screenshot(window)
-                    if hasImage("exitout", 0.92, None):
-                        click(getButtonLocation(("exitout")))
-                        screenshot(window)
                     time.sleep(3)
-                while window.title.__contains__("等"):
-                    time.sleep(5)
-                log("已进入战斗！")
-        elif hasImage("newshipresearched", 0.97, None):
-            escapeBuying(window)
-        elif hasImage("researchdone", 0.97, None):
-            timeoutEscape()
-        elif hasImage("autoresearch", 0.95, None):
-            partsDone(window)
-        elif hasImage("cancelsmall", 0.98, None):
-            click(getButtonLocation("cancelsmall"))
-        elif hasImage("exitout", 0.92, None):
-            click(getButtonLocation("exitout"))
-        else:
-            timeoutEscape()
+                    if hasImage("downloadprompt", 0.98, None):
+                        # If the texture download happens to be there, close it
+                        click(getButtonLocation("downloadprompt"))
+                        screenshot(window)
+                        if hasImage("exitout", 0.92, None):
+                            click(getButtonLocation(("exitout")))
+                            screenshot(window)
+                        time.sleep(3)
+                    while window.title.__contains__("等"):
+                        time.sleep(5)
+                    log("已进入战斗！")
+            elif hasImage("newshipresearched", 0.97, None):
+                escapeBuying(window)
+            elif hasImage("researchdone", 0.97, None):
+                timeoutEscape()
+            elif hasImage("autoresearch", 0.95, None):
+                partsDone(window)
+            elif hasImage("cancelsmall", 0.98, None):
+                click(getButtonLocation("cancelsmall"))
+            elif hasImage("exitout", 0.92, None):
+                click(getButtonLocation("exitout"))
+            else:
+                timeoutEscape()
     elif windowName.__contains__("试"):
         # We are in testing mode. Under this mode it only fires to check if the attack pattern works
         attackPattern()
@@ -365,7 +368,7 @@ def WTScript(window):
             screenshot(window)
             if hasImage("pressJ", 0.96, None):
                 pressWithDelay("j", 5, 5)
-            if i == 5:
+            if i == 5 and not semiauto:
                 if planeType == 0:
                     moveMouse(0, 60)
                 elif planeType == 1:
@@ -375,7 +378,7 @@ def WTScript(window):
                 time.sleep(0.1)
                 moveMouse(-10, 0)
             if not goDie:
-                if i > 10 and i < 40:
+                if i > 10 and i < 40 and not semiauto:
                     foundBase = maneuverPattern(window, foundBase, "basethirdRED")
                 elif i == 55:
                     if planeType == 0:
@@ -384,9 +387,9 @@ def WTScript(window):
                         pressWithDelay("b", 0.3, 0.3)
                 elif i > 60 and i < 200:
                     attackPattern()
-            if i == 200:
+            if i == 120 and not semiauto:
                 if planeType == 0:
-                    moveMouse(0, -60)
+                    moveMouse(0, -65)
                 elif planeType == 1:
                     moveMouse(0, 60)
             if i > 500:
@@ -409,50 +412,51 @@ def WTScript(window):
                 time.sleep(12)
                 break
         # game is over
-        log("结束战斗，等待结算")
-        # wait for the points
-        time.sleep(6)
-        screenshot(window)
-        researchDone = False
-        i = 0
-        while not hasImage("gotobase", 0.97, None):
-            i = i + 1
-            if i > 30:
-                log("检测到卡死")
-                timeoutEscape()
-                break
-            time.sleep(0.5)
-            getScreen(window, PATH)
-            time.sleep(0.5)
-            if hasImage("crates", 0.95, None):
-                # unlocked crates
-                log("===出了个箱子，记得查看背包===")
+        if not semiauto:
+            log("结束战斗，等待结算")
+            # wait for the points
+            time.sleep(6)
+            screenshot(window)
+            researchDone = False
+            i = 0
+            while not hasImage("gotobase", 0.97, None):
+                i = i + 1
+                if i > 30:
+                    log("检测到卡死")
+                    timeoutEscape()
+                    break
+                time.sleep(0.5)
                 getScreen(window, PATH)
-                time.sleep(15)
-                pressWithDelay('esc', 0.1, 0.5)
-            if hasImage("researchdone", 0.98, None):
-                # new ship got researched. To avoid spending all SL, we glitch the research out
-                researchDone = True
-                log("===解锁了配件或新船===")
-                time.sleep(5)
+                time.sleep(0.5)
+                if hasImage("crates", 0.95, None):
+                    # unlocked crates
+                    log("===出了个箱子，记得查看背包===")
+                    getScreen(window, PATH)
+                    time.sleep(15)
+                    pressWithDelay('esc', 0.1, 0.5)
+                if hasImage("researchdone", 0.98, None):
+                    # new ship got researched. To avoid spending all SL, we glitch the research out
+                    researchDone = True
+                    log("===解锁了配件或新船===")
+                    time.sleep(5)
+                    saveResults(window, 1000)
+                    escapeBuying(window)
+                    break
+                if hasImage("exitout", 0.91, None):
+                    click(getButtonLocation("exitout"))
+            if not researchDone:
                 saveResults(window, 1000)
-                escapeBuying(window)
-                break
-            if hasImage("exitout", 0.91, None):
-                click(getButtonLocation("exitout"))
-        if not researchDone:
-            saveResults(window, 1000)
-            getScreen(window, PATH)
-            time.sleep(0.5)
-            log("结算完成，返回主界面")
-            click(getButtonLocation("gotobase"))
-            getScreen(window, PATH)
-            time.sleep(0.5)
-            if hasImage("newshipresearched", 0.97, None) or hasImage("autoresearch", 0.97, None):
-                # new ship got researched. To avoid spending all SL, we glitch the research out
-                log("===解锁了配件或新船===")
-                escapeBuying(window)
-        time.sleep(1)
+                getScreen(window, PATH)
+                time.sleep(0.5)
+                log("结算完成，返回主界面")
+                click(getButtonLocation("gotobase"))
+                getScreen(window, PATH)
+                time.sleep(0.5)
+                if hasImage("newshipresearched", 0.97, None) or hasImage("autoresearch", 0.97, None):
+                    # new ship got researched. To avoid spending all SL, we glitch the research out
+                    log("===解锁了配件或新船===")
+                    escapeBuying(window)
+            time.sleep(1)
         getScreen(window, PATH)
 
 
@@ -513,6 +517,12 @@ if __name__ == '__main__':
         if event == "轰炸机" and not isRunning:
             planeType = 0
             isRunning = True
+            log("开始运行")
+            app.start()
+        if event == "轰炸机半自动" and not isRunning:
+            planeType = 0
+            isRunning = True
+            semiauto = True
             log("开始运行")
             app.start()
         if event == "送死模式" and not goDie:
