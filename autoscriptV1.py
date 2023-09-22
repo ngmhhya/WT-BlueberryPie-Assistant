@@ -76,8 +76,7 @@ updateLog = [
     [sg.Text("免责申明：\n本软件是大学暑期图像识别基础课\n课上实践作业，\n没有用到高深技术，\n现结课后根据规定免费公开，\n请勿在技术学习范畴之外使用\n或售卖本软件，违者后果自负", key="-log-")]]
 
 layout = [[sg.Text(menu)],
-          [sg.Button("轰炸机"),sg.VSeperator(), sg.Button("攻击机"), sg.VSeperator(), sg.Button("停止并退出")],
-          [sg.Button("送死模式"),sg.VSeperator(),sg.Button("轰炸机半自动")],
+          [sg.Button("轰炸机半自动"),sg.VSeperator(), sg.Button("停止并退出")],
           [sg.Column(layout=updateLog, size=(270, 150))]]
 
 turntime = 0
