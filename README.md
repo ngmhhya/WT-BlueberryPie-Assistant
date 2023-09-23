@@ -1,9 +1,18 @@
-# War Thunder BlueberryPie Naval Assistant
+# War Thunder BlueberryPie Air Assistant
+### Usage
+ - This is a bot script for basic AirRB usage in War Thunder. It supports base-bombing and rush-n-die.
+ - The script supports locating the bases automatically, turn towards it, and drop the bombs, fly until death, quit after death, then start a new game.
+ - Because Gaijin has been banning bots, the script added support for semi-auto gameplay, and is planning to remove the full-auto feature.
+ - Under the semi-auto version, the script **will not** automatically join a game but **will** auto-spawn after joining, it **will not** aim at a base, the player has to point the plane in the direction of a base. The script **will** automatically go into the scope vision and drop the bombs when over a base, and **will** quit to hanger after death, but **will not** join a new game.
+ - Please beware that usage of any bots are against the game's rules. This script is a simple script, only made in the free time of my computer science image processing class, it will not try to deter any detection methods, nor will any long-time supports be made.
+ - Please understand that a human, any human, can be more efficient than a bot. So if you decided to use this script, don't spread it around. Also, it's free to use, so don't try to sell it anywhere.
+ - If I, under any circumstances, recieved request to take this thing down, I will cooperate accordingly, and private or delete the repo.
+   
 ## 战争雷霆-蓝莓派-简约空战助手
 ### 前言
  - 本软件脱胎于大学暑期图像识别基础课课上实践作业，主要的点为在游戏中根据不同页面点击对应的图标。没有用到什么高深技术，现结课后根据规定修改后免费公开，请勿售卖本软件，造成的后果概不负责。
  - 本软件修改自苹果派助手
- - 可以用于战争雷霆空战挂机。不保证抢得到战区，其实直接送死效率还高一些
+ - 可以用于战争雷霆空战挂机。不保证抢得到战区。
  - 虽然但是，该说的话还是得说的：你手打的效率比脚本高多了。如果你游戏打得银狮掉得只能用脚本了，那想拿去用就拿去咯。反正我话放在这里了，出了事也别找我，被骂了也别找我，我这边骂的人多起来我就把这个repo给private掉。
 
 #### 新·半自动使用方法
